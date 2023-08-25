@@ -1,0 +1,5 @@
+1) parameter for testing
+"{ 'settings': { 'files': [ 'Ярославль', 'Челябинск', 'сеть', 'Client Summary' ], 'uuid': 'test_files' } }"
+
+2) compile excelFusion.py to exe file
+pyinstaller -F -w --icon=excel.ico excelFusion.py
