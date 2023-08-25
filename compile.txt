@@ -1,5 +1,20 @@
 1) parameter for testing
-"{ 'settings': { 'files': [ 'Ярославль', 'Челябинск', 'сеть', 'Client Summary' ], 'uuid': 'test_files' } }"
+"{
+    'base_url': 'https://demo.mediascout.ru',
+    'url': '/webapi/Clients/GetClients',
+    'headers': {
+        'Content-type': 'application/json',
+        'Accept': 'application/json'
+    },
+    'auth': {
+        'tocken': '',
+        'login': 'vitaly.nikulin@okkam.ru',
+        'password': 'vukyz9O79?'
+    },
+    'data': [{'Inn': '9709035970'}, {'Inn': '9709035971'}],
+    'method': 'post',
+    'uuid': 'test'
+}"
 
 2) compile excelFusion.py to exe file
 pyinstaller -F -w --icon=asyncApi.ico asyncApi.py
