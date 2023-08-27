@@ -34,7 +34,7 @@ def logDecorator(func):
 
     return wrapper
 
-# @logDecorator
+@logDecorator
 async def post_query(session, url, json):
     async with session.post(url=url, json=json) as resp:
         if resp.status == 200:
@@ -45,7 +45,7 @@ async def post_query(session, url, json):
                                "json": json,
                                "url": url}}]
 
-# @logDecorator
+@logDecorator
 async def post(settings):
     base_url = settings.get("base_url")
     url = settings.get("url")
@@ -85,13 +85,13 @@ async def post(settings):
                         json_value.append({"error": {"status": 200,
                                                      "reason": lst_result.__str__()}})
 
-        dirPath = os.path.join(projectDir, uuid)
-        if not os.path.exists(dirPath):
-            os.mkdir(dirPath)
-        with open(os.path.join(dirPath, f"{uuid}.json"), "w", encoding="utf-8") as jsonFile:
+        # dirPath = os.path.join(projectDir, uuid)
+        # if not os.path.exists(dirPath):
+        #     os.mkdir(dirPath)
+        with open(os.path.join(projectDir, f"{uuid}.json"), "w", encoding="utf-8") as jsonFile:
             jsonFile.write(json_dumps(result_json).__str__())
 
-# @logDecorator
+@logDecorator
 def readParameters(fileSettings_string):
     settings = eval(fileSettings_string)
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
