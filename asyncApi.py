@@ -6,6 +6,9 @@ from json import dumps as json_dumps
 
 import aiohttp
 
+global projectDir
+global loggerglobal
+
 def getGlobalVariables():
     """global path"""
     global projectDir
@@ -57,9 +60,9 @@ async def post(settings):
     uuid = settings.get("uuid")
 
     if not ("http://" in base_url or "https://" in base_url):
-        if ssl and ssl=="true":
+        if ssl and ssl == "true":
             base_url = f"https://{base_url}"
-        elif ssl and ssl=="false":
+        elif ssl and ssl == "false":
             base_url = f"http://{base_url}"
 
     if login:
@@ -85,9 +88,6 @@ async def post(settings):
                         json_value.append({"error": {"status": 200,
                                                      "reason": lst_result.__str__()}})
 
-        # dirPath = os.path.join(projectDir, uuid)
-        # if not os.path.exists(dirPath):
-        #     os.mkdir(dirPath)
         with open(os.path.join(projectDir, f"{uuid}.json"), "w", encoding="utf-8") as jsonFile:
             jsonFile.write(json_dumps(result_json).__str__())
 
@@ -98,8 +98,19 @@ def readParameters(fileSettings_string):
     if settings.get("method") == "post":
         asyncio.run(post(settings))
 
+@logDecorator
+def clearTempFiles():
+    for item in os.listdir(path=projectDir):
+        if item.endswith(".json"):
+            os.remove(os.path.join(projectDir, item))
+
 if __name__ == '__main__':
     getGlobalVariables()
     if len(sys.argv) == 2:
         arg = sys.argv[1]
-        readParameters(arg)
+        if arg == "-clear":
+            clearTempFiles()
+        else:
+            readParameters(arg)
+    else:
+        loggerglobal.exception(f"Wrong parameters.")
