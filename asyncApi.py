@@ -49,11 +49,18 @@ async def post_query(session, url, json):
 async def post(settings):
     base_url = settings.get("base_url")
     url = settings.get("url")
+    ssl = settings.get("ssl")
     login = settings.get("login")
     password = settings.get("password")
     headers = settings.get("headers")
     data = settings.get("data")
     uuid = settings.get("uuid")
+
+    if not ("http://" in base_url or "https://" in base_url):
+        if ssl and ssl=="true":
+            base_url = f"https://{base_url}"
+        elif ssl and ssl=="false":
+            base_url = f"http://{base_url}"
 
     if login:
         basicAuth = aiohttp.BasicAuth(login, password)

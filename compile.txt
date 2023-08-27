@@ -2,16 +2,16 @@
 "{
     'base_url': 'https://demo.mediascout.ru',
     'url': '/webapi/Clients/GetClients',
-    'ssl': true,
+    'ssl': 'true',
+    'login': 'vitaly.nikulin@okkam.ru',
+    'password': 'vukyz9O79?',
     'headers': {
         'Content-type': 'application/json',
         'Accept': 'application/json'
     },
-    'login': 'vitaly.nikulin@okkam.ru',
-    'password': 'vukyz9O79?',
     'data': [{'Inn': '9709035970'}, {'Inn': '9709035971'}],
     'method': 'post',
-    'uuid': 'test'
+    'uuid': 'd7fc22a3-e10f-4eb5-a979-7bfc4e28a3b5'
 }"
 
 2) compile excelFusion.py to exe file
