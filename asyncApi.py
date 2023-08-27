@@ -88,8 +88,8 @@ async def post(settings):
                         json_value.append({"error": {"status": 200,
                                                      "reason": lst_result.__str__()}})
 
-        with open(os.path.join(projectDir, f"{uuid}.json"), "w", encoding="utf-8") as jsonFile:
-            jsonFile.write(json_dumps(result_json).__str__())
+        with open(os.path.join(projectDir, f"{uuid}.json"), "w", encoding="UTF-8") as jsonFile:
+            jsonFile.write(json_dumps(result_json, ensure_ascii=False).__str__())
 
 @logDecorator
 def readParameters(fileSettings_string):
