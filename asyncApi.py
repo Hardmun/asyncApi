@@ -72,7 +72,12 @@ async def post(settings):
         if isinstance(result, list):
             for lst_result in result:
                 if isinstance(lst_result, list):
-                    json_value.append(lst_result[0])
+                    lstCount = len(lst_result)
+                    if lstCount == 1:
+                        json_value.append(lst_result[0])
+                    if lstCount > 1:
+                        json_value.append({"error": {"status": 200,
+                               "reason": lst_result.__str__()}})
 
         dirPath = os.path.join(projectDir, uuid)
         if not os.path.exists(dirPath):
