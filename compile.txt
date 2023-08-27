@@ -2,15 +2,13 @@
 "{
     'base_url': 'https://demo.mediascout.ru',
     'url': '/webapi/Clients/GetClients',
+    'ssl': true,
     'headers': {
         'Content-type': 'application/json',
         'Accept': 'application/json'
     },
-    'auth': {
-        'tocken': '',
-        'login': 'vitaly.nikulin@okkam.ru',
-        'password': 'vukyz9O79?'
-    },
+    'login': 'vitaly.nikulin@okkam.ru',
+    'password': 'vukyz9O79?',
     'data': [{'Inn': '9709035970'}, {'Inn': '9709035971'}],
     'method': 'post',
     'uuid': 'test'

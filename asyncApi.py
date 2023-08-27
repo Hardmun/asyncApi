@@ -34,6 +34,7 @@ def logDecorator(func):
 
     return wrapper
 
+# @logDecorator
 async def post_query(session, url, json):
     async with session.post(url=url, json=json) as resp:
         if resp.status == 200:
@@ -44,24 +45,22 @@ async def post_query(session, url, json):
                                "json": json,
                                "url": url}}]
 
+# @logDecorator
 async def post(settings):
     base_url = settings.get("base_url")
     url = settings.get("url")
+    login = settings.get("login")
+    password = settings.get("password")
     headers = settings.get("headers")
-    auth = settings.get("auth")
-    tocken = auth.get("tocken")
     data = settings.get("data")
     uuid = settings.get("uuid")
 
-    if tocken:
-        if not isinstance(headers, dict):
-            headers = {}
-        headers.update({"Authorization": f"bearer{tocken}"})
-        basicAuth = ""
+    if login:
+        basicAuth = aiohttp.BasicAuth(login, password)
     else:
-        basicAuth = aiohttp.BasicAuth(auth.get("login"), auth.get("password"))
+        basicAuth = ""
 
-    async with aiohttp.ClientSession(base_url=base_url, auth=basicAuth) as session:
+    async with aiohttp.ClientSession(base_url=base_url, auth=basicAuth, headers=headers) as session:
         tasks = []
         for json in data:
             tasks.append(asyncio.ensure_future(post_query(session, url, json)))
@@ -77,7 +76,7 @@ async def post(settings):
                         json_value.append(lst_result[0])
                     if lstCount > 1:
                         json_value.append({"error": {"status": 200,
-                               "reason": lst_result.__str__()}})
+                                                     "reason": lst_result.__str__()}})
 
         dirPath = os.path.join(projectDir, uuid)
         if not os.path.exists(dirPath):
