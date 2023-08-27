@@ -98,6 +98,10 @@ def readParameters(fileSettings_string):
     if settings.get("method") == "post":
         asyncio.run(post(settings))
 
+def clearLogs():
+    globalHandler = logging.FileHandler(os.path.join(projectDir, "errors.log"), "w")
+    loggerglobal.addHandler(globalHandler)
+
 @logDecorator
 def clearTempFiles():
     for item in os.listdir(path=projectDir):
@@ -110,6 +114,8 @@ if __name__ == '__main__':
         arg = sys.argv[1]
         if arg == "-clear":
             clearTempFiles()
+        elif arg == "-clearLogs":
+            clearLogs()
         else:
             readParameters(arg)
     else:
