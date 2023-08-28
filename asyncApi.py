@@ -82,13 +82,17 @@ async def post(settings):
             for idx, lst_result in enumerate(result):
                 if isinstance(lst_result, list):
                     lstCount = len(lst_result)
-                    if lstCount == 1:
-                        itm = lst_result[0]
-                        itm.update({"index": idx})
-                        json_value.append(itm)
                     if lstCount > 1:
                         json_value.append({"error": {"status": 200,
                                                      "reason": lst_result.__str__()},
+                                           "index": idx})
+                    elif lstCount == 1:
+                        itm = lst_result[0]
+                        itm.update({"index": idx})
+                        json_value.append(itm)
+                    else:
+                        json_value.append({"error": {"status": 200,
+                                                     "reason": "Result is empty"},
                                            "index": idx})
 
         with open(os.path.join(projectDir, f"{uuid}.json"), "w", encoding="UTF-8") as jsonFile:
