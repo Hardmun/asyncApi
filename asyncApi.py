@@ -79,14 +79,17 @@ async def post(settings):
         result_json = {"data": []}
         json_value = result_json.get("data")
         if isinstance(result, list):
-            for lst_result in result:
+            for idx, lst_result in enumerate(result):
                 if isinstance(lst_result, list):
                     lstCount = len(lst_result)
                     if lstCount == 1:
-                        json_value.append(lst_result[0])
+                        itm = lst_result[0]
+                        itm.update({"index": idx})
+                        json_value.append(itm)
                     if lstCount > 1:
                         json_value.append({"error": {"status": 200,
-                                                     "reason": lst_result.__str__()}})
+                                                     "reason": lst_result.__str__()},
+                                           "index": idx})
 
         with open(os.path.join(projectDir, f"{uuid}.json"), "w", encoding="UTF-8") as jsonFile:
             jsonFile.write(json_dumps(result_json, ensure_ascii=False).__str__())
