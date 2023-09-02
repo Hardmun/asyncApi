@@ -37,6 +37,9 @@ def logDecorator(func):
 
     return wrapper
 
+def rebootStation():
+    pass
+
 @logDecorator
 async def post_query(session, url, json):
     async with session.post(url=url, json=json) as resp:
@@ -65,7 +68,7 @@ async def post(settings):
         elif ssl and ssl == "false":
             base_url = f"http://{base_url}"
 
-    if login:
+    if login and not (headers and headers.get("Authorization")):
         basicAuth = aiohttp.BasicAuth(login, password)
     else:
         basicAuth = None
@@ -123,6 +126,8 @@ if __name__ == '__main__':
             clearTempFiles()
         elif arg == "-clearLogs":
             clearLogs()
+        elif arg == "-reboot":
+            rebootStation()
         else:
             readParameters(arg)
     else:
