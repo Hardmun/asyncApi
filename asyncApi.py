@@ -68,7 +68,7 @@ async def post(settings):
     if login:
         basicAuth = aiohttp.BasicAuth(login, password)
     else:
-        basicAuth = ""
+        basicAuth = None
 
     async with aiohttp.ClientSession(base_url=base_url, auth=basicAuth, headers=headers) as session:
         tasks = []
