@@ -2,7 +2,8 @@ import asyncio
 import logging
 import os
 import sys
-from json import dumps as json_dumps
+from json import dumps as json_dumps, load as json_load
+from shutil import rmtree
 
 import aiohttp
 
@@ -52,20 +53,19 @@ async def post_query(session, url, json):
                                "url": url}}]
 
 @logDecorator
-async def post(settings):
-    base_url = settings.get("base_url")
-    url = settings.get("url")
-    ssl = settings.get("ssl")
-    login = settings.get("login")
-    password = settings.get("password")
-    headers = settings.get("headers")
-    data = settings.get("data")
-    uuid = settings.get("uuid")
+async def post(data, uuid):
+    base_url = data.get("base_url")
+    url = data.get("url")
+    ssl = data.get("ssl")
+    login = data.get("login")
+    password = data.get("password")
+    headers = data.get("headers")
+    data = data.get("data")
 
     if not ("http://" in base_url or "https://" in base_url):
         if ssl and ssl == "true":
             base_url = f"https://{base_url}"
-        elif ssl and ssl == "false":
+        else:
             base_url = f"http://{base_url}"
 
     if login and not (headers and headers.get("Authorization")):
@@ -98,37 +98,40 @@ async def post(settings):
                                                      "reason": "Result is empty"},
                                            "index": idx})
 
-        with open(os.path.join(projectDir, f"{uuid}.json"), "w", encoding="UTF-8") as jsonFile:
+        with open(os.path.join(projectDir, uuid, "result.json"), "w", encoding="UTF-8") as jsonFile:
             jsonFile.write(json_dumps(result_json, ensure_ascii=False).__str__())
 
 @logDecorator
-def readParameters(fileSettings_string):
-    settings = eval(fileSettings_string)
+def callAsyncApi(uuid):
+    with open(os.path.join(projectDir, uuid, f"data.json"), "r", encoding="UTF-8") as jsonFile:
+        data = json_load(jsonFile)
+
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
-    if settings.get("method") == "post":
-        asyncio.run(post(settings))
+    if data.get("method") == "post":
+        asyncio.run(post(data, uuid))
 
 def clearLogs():
     globalHandler = logging.FileHandler(os.path.join(projectDir, "errors.log"), "w")
     loggerglobal.addHandler(globalHandler)
 
 @logDecorator
-def clearTempFiles():
-    for item in os.listdir(path=projectDir):
-        if item.endswith(".json"):
-            os.remove(os.path.join(projectDir, item))
+def clearTempFiles(Tempdir):
+    rmtree(os.path.join(projectDir, Tempdir), ignore_errors=True)
 
 if __name__ == '__main__':
     getGlobalVariables()
-    if len(sys.argv) == 2:
+    paramLen = len(sys.argv)
+    if paramLen == 2:
         arg = sys.argv[1]
-        if arg == "-clear":
-            clearTempFiles()
-        elif arg == "-clearLogs":
+        if arg == "-clearLogs":
             clearLogs()
         elif arg == "-reboot":
             rebootStation()
         else:
-            readParameters(arg)
+            callAsyncApi(arg)
+    elif paramLen == 3:
+        arg = sys.argv[1]
+        if arg == "-clear":
+            clearTempFiles(sys.argv[2])
     else:
         loggerglobal.exception(f"Wrong parameters.")

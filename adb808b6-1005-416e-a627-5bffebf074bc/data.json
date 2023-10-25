@@ -1,0 +1,18 @@
+{
+"base_url": "demo.mediascout.ru",
+"url": "/webapi/Invoices/GetInvoices",
+"ssl": "true",
+"login": "vitaly.nikulin@okkam.ru",
+"password": "vukyz9O79?",
+"headers": {
+"Content-type": "application/json"
+},
+"method": "post",
+"data": [
+{
+"Number": "УС31-08/695",
+"DateStart": "2023-08-31",
+"DateEnd": "2023-08-31"
+}
+]
+}
