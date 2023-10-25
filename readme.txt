@@ -7,8 +7,8 @@
 "base_url": "demo.mediascout.ru",
 "url": "/webapi/Invoices/GetInvoices",
 "ssl": "true",
-"login": "vitaly.nikulin@okkam.ru",
-"password": "vukyz9O79?",
+"login": "login",
+"password": "password",
 "headers": {
 "Content-type": "application/json"
 },
