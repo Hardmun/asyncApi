@@ -38,10 +38,35 @@ def logDecorator(func):
 
     return wrapper
 
-def rebootStation():
-    pass
+async def repeatQueueForErrors(error_raws, session, url, data, json_value):
+    if len(error_raws):
+        tasks = []
+        for error_raw in error_raws:
+            tasks.append(asyncio.ensure_future(post_query(session, url, data[error_raw])))
+        result = await asyncio.gather(*tasks)
 
-@logDecorator
+        if isinstance(result, list):
+            for idx, lst_result in enumerate(result):
+                if isinstance(lst_result, list):
+                    error_idx = error_raws[idx]
+                    lstCount = len(lst_result)
+                    if lstCount > 1:
+                        json_value[error_raws[idx]] = {"error": {"status": 200,
+                                                                 "reason": lst_result.__str__()},
+                                                       "index": error_idx}
+                    elif lstCount == 1:
+                        itm = lst_result[0]
+                        loggerglobal.exception(f"JSON value: {json_value[error_idx]} has been replaced with: {itm}",
+                                               exc_info="Bad request 504")
+                        itm.update({"index": error_idx})
+                        json_value[error_idx] = itm
+
+                    else:
+                        json_value[error_idx] = {"error": {"status": 200,
+                                                           "reason": "Result is empty"},
+                                                 "index": error_idx}
+
+# @logDecorator
 async def post_query(session, url, json):
     async with session.post(url=url, json=json) as resp:
         if resp.status == 200:
@@ -52,7 +77,7 @@ async def post_query(session, url, json):
                                "json": json,
                                "url": url}}]
 
-@logDecorator
+# @logDecorator
 async def post(data, uuid):
     base_url = data.get("base_url")
     url = data.get("url")
@@ -81,6 +106,7 @@ async def post(data, uuid):
         result = await asyncio.gather(*tasks)
         result_json = {"data": []}
         json_value = result_json.get("data")
+        error_raws = []
         if isinstance(result, list):
             for idx, lst_result in enumerate(result):
                 if isinstance(lst_result, list):
@@ -93,15 +119,20 @@ async def post(data, uuid):
                         itm = lst_result[0]
                         itm.update({"index": idx})
                         json_value.append(itm)
+                        error_ = itm.get("error")
+                        if error_ and (error_.get("status") == 504):
+                            error_raws.append(idx)
                     else:
                         json_value.append({"error": {"status": 200,
                                                      "reason": "Result is empty"},
                                            "index": idx})
 
+        await repeatQueueForErrors(error_raws, session, url, data, json_value)
+
         with open(os.path.join(projectDir, uuid, "result.json"), "w", encoding="UTF-8") as jsonFile:
             jsonFile.write(json_dumps(result_json, ensure_ascii=False).__str__())
 
-@logDecorator
+# @logDecorator
 def callAsyncApi(uuid):
     with open(os.path.join(projectDir, uuid, f"data.json"), "r", encoding="UTF-8") as jsonFile:
         data = json_load(jsonFile)
@@ -114,7 +145,7 @@ def clearLogs():
     globalHandler = logging.FileHandler(os.path.join(projectDir, "errors.log"), "w")
     loggerglobal.addHandler(globalHandler)
 
-@logDecorator
+# @logDecorator
 def clearTempFiles(Tempdir):
     rmtree(os.path.join(projectDir, Tempdir), ignore_errors=True)
 
