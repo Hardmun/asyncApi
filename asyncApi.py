@@ -157,8 +157,6 @@ if __name__ == '__main__':
         arg = sys.argv[1]
         if arg == "-clearLogs":
             clearLogs()
-        elif arg == "-reboot":
-            rebootStation()
         else:
             callAsyncApi(arg)
     elif paramLen == 3:
