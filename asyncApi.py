@@ -38,6 +38,7 @@ def logDecorator(func):
 
     return wrapper
 
+@logDecorator
 async def repeatQueueForErrors(error_raws, session, url, data, json_value):
     if len(error_raws):
         tasks = []
@@ -66,7 +67,7 @@ async def repeatQueueForErrors(error_raws, session, url, data, json_value):
                                                            "reason": "Result is empty"},
                                                  "index": error_idx}
 
-# @logDecorator
+@logDecorator
 async def post_query(session, url, json):
     async with session.post(url=url, json=json) as resp:
         if resp.status == 200:
@@ -77,7 +78,7 @@ async def post_query(session, url, json):
                                "json": json,
                                "url": url}}]
 
-# @logDecorator
+@logDecorator
 async def post(data, uuid):
     base_url = data.get("base_url")
     url = data.get("url")
@@ -132,7 +133,7 @@ async def post(data, uuid):
         with open(os.path.join(projectDir, uuid, "result.json"), "w", encoding="UTF-8") as jsonFile:
             jsonFile.write(json_dumps(result_json, ensure_ascii=False).__str__())
 
-# @logDecorator
+@logDecorator
 def callAsyncApi(uuid):
     with open(os.path.join(projectDir, uuid, f"data.json"), "r", encoding="UTF-8") as jsonFile:
         data = json_load(jsonFile)
@@ -145,7 +146,7 @@ def clearLogs():
     globalHandler = logging.FileHandler(os.path.join(projectDir, "errors.log"), "w")
     loggerglobal.addHandler(globalHandler)
 
-# @logDecorator
+@logDecorator
 def clearTempFiles(Tempdir):
     rmtree(os.path.join(projectDir, Tempdir), ignore_errors=True)
 
