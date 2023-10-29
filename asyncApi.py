@@ -121,7 +121,7 @@ async def post(data, uuid):
                         itm.update({"index": idx})
                         json_value.append(itm)
                         error_ = itm.get("error")
-                        if error_ and (error_.get("status") == 504):
+                        if error_ and (error_.get("status") == 502):
                             error_raws.append(idx)
                     else:
                         json_value.append({"error": {"status": 200,
