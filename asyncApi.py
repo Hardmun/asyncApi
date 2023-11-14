@@ -57,8 +57,9 @@ async def repeatQueueForErrors(error_raws, session, url, data, json_value):
                                                        "index": error_idx}
                     elif lstCount == 1:
                         itm = lst_result[0]
-                        loggerglobal.exception(f"JSON value: {json_value[error_idx]} has been replaced with: {itm}",
-                                               exc_info="Bad request 504")
+                        error_number = str(itm.get("error").get("status") if itm.get("error") else None)
+                        loggerglobal.exception(f"JSON value: {json_value[error_idx]} has been replaced with: {error_number}",
+                                               exc_info=f"Bad request{1}")
                         itm.update({"index": error_idx})
                         json_value[error_idx] = itm
 
@@ -121,8 +122,10 @@ async def post(data, uuid):
                         itm.update({"index": idx})
                         json_value.append(itm)
                         error_ = itm.get("error")
-                        if error_ and (error_.get("status") == 502):
-                            error_raws.append(idx)
+                        if error_:
+                            error_status = error_.get("status")
+                            if error_status in [502, 401, 400]:
+                                error_raws.append(idx)
                     else:
                         json_value.append({"error": {"status": 200,
                                                      "reason": "Result is empty"},
