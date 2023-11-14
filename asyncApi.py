@@ -41,8 +41,8 @@ def logDecorator(func):
 @logDecorator
 async def repeatQueueForErrors(error_raws, session, url, data, json_value):
     if len(error_raws):
-        """Awaiting server response for 3 seconds"""
-        await asyncio.sleep(3)
+        """Awaiting server response for 1 seconds"""
+        await asyncio.sleep(1)
         tasks = []
         for error_raw in error_raws:
             tasks.append(asyncio.ensure_future(post_query(session, url, data[error_raw])))
