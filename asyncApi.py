@@ -41,6 +41,8 @@ def logDecorator(func):
 @logDecorator
 async def repeatQueueForErrors(error_raws, session, url, data, json_value):
     if len(error_raws):
+        """Awaiting server response for 3 seconds"""
+        await asyncio.sleep(3)
         tasks = []
         for error_raw in error_raws:
             tasks.append(asyncio.ensure_future(post_query(session, url, data[error_raw])))
@@ -52,20 +54,19 @@ async def repeatQueueForErrors(error_raws, session, url, data, json_value):
                     error_idx = error_raws[idx]
                     lstCount = len(lst_result)
                     if lstCount > 1:
-                        json_value[error_raws[idx]] = {"error": {"status": 200,
-                                                                 "reason": lst_result.__str__()},
+                        json_value[error_raws[idx]] = {"error": {"status": 200, "reason": lst_result.__str__()},
                                                        "index": error_idx}
                     elif lstCount == 1:
                         itm = lst_result[0]
                         error_number = str(itm.get("error").get("status") if itm.get("error") else None)
-                        loggerglobal.exception(f"JSON value: {json_value[error_idx]} has been replaced with: {error_number}",
-                                               exc_info=f"Bad request{1}")
+                        loggerglobal.exception(
+                            f"JSON value: {json_value[error_idx]} has been replaced. HTTP error: {error_number}",
+                            exc_info=f"Bad request{1}")
                         itm.update({"index": error_idx})
                         json_value[error_idx] = itm
 
                     else:
-                        json_value[error_idx] = {"error": {"status": 200,
-                                                           "reason": "Result is empty"},
+                        json_value[error_idx] = {"error": {"status": 200, "reason": "Result is empty"},
                                                  "index": error_idx}
 
 @logDecorator
@@ -74,10 +75,7 @@ async def post_query(session, url, json):
         if resp.status == 200:
             return await resp.json()
         else:
-            return [{"error": {"status": resp.status,
-                               "reason": resp.reason,
-                               "json": json,
-                               "url": url}}]
+            return [{"error": {"status": resp.status, "reason": resp.reason, "json": json, "url": url}}]
 
 @logDecorator
 async def post(data, uuid):
@@ -114,9 +112,7 @@ async def post(data, uuid):
                 if isinstance(lst_result, list):
                     lstCount = len(lst_result)
                     if lstCount > 1:
-                        json_value.append({"error": {"status": 200,
-                                                     "reason": lst_result.__str__()},
-                                           "index": idx})
+                        json_value.append({"error": {"status": 200, "reason": lst_result.__str__()}, "index": idx})
                     elif lstCount == 1:
                         itm = lst_result[0]
                         itm.update({"index": idx})
@@ -127,9 +123,7 @@ async def post(data, uuid):
                             if error_status in [502, 401, 400]:
                                 error_raws.append(idx)
                     else:
-                        json_value.append({"error": {"status": 200,
-                                                     "reason": "Result is empty"},
-                                           "index": idx})
+                        json_value.append({"error": {"status": 200, "reason": "Result is empty"}, "index": idx})
 
         await repeatQueueForErrors(error_raws, session, url, data, json_value)
 
