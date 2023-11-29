@@ -2,7 +2,7 @@ import asyncio
 import logging
 import os
 import sys
-from json import dumps as json_dumps, load as json_load
+from json import dumps as json_dumps, load as json_load, loads as json_loads
 from shutil import rmtree
 
 import aiohttp
@@ -72,8 +72,9 @@ async def repeatQueueForErrors(error_raws, session, url, data, json_value):
 @logDecorator
 async def post_query(session, url, json):
     async with session.post(url=url, json=json) as resp:
-        if resp.status == 200:
-            return await resp.json()
+        if resp.status in [200, 201, 400]:
+            return await resp.json() if len(resp.content._buffer) != 0 else {
+                "error": {"status": 200, "reason": "Result is empty"}}
         else:
             return [{"error": {"status": resp.status, "reason": resp.reason, "json": json, "url": url}}]
 
@@ -120,10 +121,16 @@ async def post(data, uuid):
                         error_ = itm.get("error")
                         if error_:
                             error_status = error_.get("status")
-                            if error_status in [502, 401, 400]:
+                            if error_status in [502, 401]:
                                 error_raws.append(idx)
                     else:
                         json_value.append({"error": {"status": 200, "reason": "Result is empty"}, "index": idx})
+                elif isinstance(lst_result, dict):
+                    lst_result.update({"index": idx})
+                    if lst_result.get("ErrorType") == 'ValidationException':
+                        lst_result.update(
+                            {"error": {"status": 400, "reason": lst_result['ErrorItems'][0]['ErrorMessage']}})
+                    json_value.append(lst_result)
 
         await repeatQueueForErrors(error_raws, session, url, data, json_value)
 
