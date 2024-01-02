@@ -1,7 +1,7 @@
 1) parameter for testing
 "adb808b6-1005-416e-a627-5bffebf074bc"
 
-2) for test create json file data.json in catalog adb808b6-1005-416e-a627-5bffebf074bc
+2) for testing create json file data.json in directory adb808b6-1005-416e-a627-5bffebf074bc
 
 {
 "base_url": "demo.mediascout.ru",
